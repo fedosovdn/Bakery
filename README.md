@@ -97,6 +97,7 @@ MinIO разворачивается на том же сервере через 
 /admin  -> Strapi admin
 /api    -> Strapi API
 /minio  -> MinIO Console
+/media  -> публичные файлы из MinIO bucket
 ```
 
 ### Backend на ASP.NET
@@ -166,6 +167,91 @@ bakery-site/
         bakery.conf
 
   README.md
+```
+
+Текущая структура репозитория:
+
+```text
+bakery-site/
+  frontend/
+    # Next.js приложение
+
+  cms/
+    config/
+    src/
+    Dockerfile
+    package.json
+
+  infra/
+    docker-compose.yml
+    .env.example
+    nginx/
+      nginx.conf
+      conf.d/
+        bakery.conf
+
+  .gitignore
+  PLAN.md
+  README.md
+```
+
+На текущем этапе Next.js приложение уже создано в `frontend/`. Strapi приложение создано в `cms/`, модели `Product`, `Category`, `Promotion` и `Site Settings` описаны в коде. Docker Compose поднимает PostgreSQL, Strapi, MinIO, frontend и Nginx, а основные сервисы имеют `restart: unless-stopped` и healthcheck.
+
+Базовые команды:
+
+```bash
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# CMS
+cd cms
+npm install
+npm run develop
+
+# Infrastructure
+cd infra
+docker compose up -d
+```
+
+Для проверки Compose на основе примера окружения можно использовать:
+
+```bash
+cd infra
+ENV_FILE=.env.example docker compose --env-file .env.example config
+```
+
+В PowerShell:
+
+```powershell
+cd infra
+$env:ENV_FILE = ".env.example"
+docker compose --env-file .env.example config
+```
+
+В production рядом с `infra/docker-compose.yml` должен быть создан реальный `.env` с секретами. Файл `.env` не коммитится.
+
+Подробная инструкция запуска на Linux-сервере описана в `infra/DEPLOY.md`.
+
+Локальная проверка Docker Compose сейчас настроена на порт `8080` через `HTTP_PORT` в `infra/.env`:
+
+```text
+http://localhost:8080          -> frontend
+http://localhost:8080/admin    -> Strapi admin
+http://localhost:8080/api      -> Strapi API
+http://localhost:8080/minio/   -> MinIO Console
+http://localhost:8080/media/   -> public media bucket
+```
+
+Strapi admin использует дополнительные backend endpoints, которые тоже проксируются в Strapi:
+
+```text
+/content-manager
+/content-type-builder
+/upload
+/users-permissions
+/i18n
 ```
 
 Причины выбрать monorepo:
@@ -446,6 +532,7 @@ frontend
 strapi
 postgres
 minio
+minio-init
 ```
 
 Примерная схема:
@@ -472,6 +559,7 @@ strapi
 ```env
 # Common
 NODE_ENV=production
+HTTP_PORT=80
 
 # PostgreSQL
 POSTGRES_DB=bakery
@@ -486,6 +574,7 @@ STRAPI_API_TOKEN_SALT=change_me
 STRAPI_ADMIN_JWT_SECRET=change_me
 STRAPI_TRANSFER_TOKEN_SALT=change_me
 STRAPI_JWT_SECRET=change_me
+STRAPI_ENCRYPTION_KEY=change_me
 
 # Strapi database
 DATABASE_CLIENT=postgres
@@ -502,6 +591,8 @@ MINIO_ROOT_PASSWORD=change_me_strong_password
 MINIO_BUCKET=bakery-media
 MINIO_ENDPOINT=minio
 MINIO_PORT=9000
+MINIO_REGION=us-east-1
+MINIO_PUBLIC_URL=http://SERVER_IP/media
 MINIO_USE_SSL=false
 
 # Frontend
@@ -527,6 +618,7 @@ http://SERVER_IP/          -> frontend
 http://SERVER_IP/admin     -> Strapi admin
 http://SERVER_IP/api       -> Strapi API
 http://SERVER_IP/minio     -> MinIO Console
+http://SERVER_IP/media     -> public media bucket
 ```
 
 Важно:
