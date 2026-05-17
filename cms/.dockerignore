@@ -1,0 +1,9 @@
+node_modules
+.strapi
+dist
+build
+.tmp
+*.log
+*.tsbuildinfo
+.env
+.env.*

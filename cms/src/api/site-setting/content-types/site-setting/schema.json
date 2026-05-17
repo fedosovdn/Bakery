@@ -1,0 +1,52 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_settings",
+  "info": {
+    "singularName": "site-setting",
+    "pluralName": "site-settings",
+    "displayName": "Site Settings",
+    "description": "Global website settings and editable page content"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "siteName": {
+      "type": "string",
+      "required": true,
+      "default": "Bakery Site"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "telegramUrl": {
+      "type": "string"
+    },
+    "whatsappUrl": {
+      "type": "string"
+    },
+    "address": {
+      "type": "text"
+    },
+    "mapEmbedUrl": {
+      "type": "text"
+    },
+    "workingHours": {
+      "type": "text"
+    },
+    "heroTitle": {
+      "type": "string"
+    },
+    "heroSubtitle": {
+      "type": "text"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "aboutText": {
+      "type": "richtext"
+    }
+  }
+}
